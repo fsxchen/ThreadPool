@@ -50,7 +50,6 @@ class WorkerThread(threading.Thread):
                 一直block，直到requestQueue有值，或者超时
                 '''
                 request = self._requestQueue.get(True,self._poll_timeout)
-                print(self._requestQueue.qsize(), "request, request")
             except queue.Empty:
                 continue
             else:
@@ -60,7 +59,6 @@ class WorkerThread(threading.Thread):
                     break
                 try:
                     '''执行callable，讲请求和结果以tuple的方式放入requestQueue'''
-                    print("kaishi xiancheng ...............")
                     result = request.callable(*request.args,**request.kwds)
                     self._resultQueue.put((request,result))
                 except:
@@ -157,18 +155,13 @@ class ThreadPool:
                 raise NoWorkersAvailable
             try:
                 '''默认只要resultQueue有值，则取出，否则一直block'''
-                print(self._resultQueue.qsize(), "size...")
                 request , result = self._resultQueue.get(block=block)
-                print(request, result, "rrrrr......waitting")
                 if request.exception and request.exc_callback:
-                    print("=============")
                     request.exc_callback(request,result)
                 if request.callback and not (request.exception and request.exc_callback):
-                    print("mmmmmmmmmmmmmmmmmmmmm")
                     request.callback(request,result)
                 del self.workRequests[request.requestID]
             except queue.Empty as e:
-                print(e, "eeee"*11)
                 break
 
     def wait(self):
